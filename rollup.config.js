@@ -2,6 +2,7 @@ import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
+import postcss from 'rollup-plugin-postcss';
 import { terser } from 'rollup-plugin-terser';
 import autoPreprocess from 'svelte-preprocess';
 
@@ -24,6 +25,7 @@ export default {
 			css: css => {
 				css.write('public/build/bundle.css');
 			},
+			emitCss: true,
 			preprocess: autoPreprocess()
 		}),
 
@@ -37,7 +39,18 @@ export default {
 			dedupe: ['svelte']
 		}),
 		commonjs(),
-
+		postcss({
+			extract: true,
+			minimize: true,
+			use: [
+				['sass', {
+					includePaths: [
+						'./src/theme',
+						'./node_modules'
+					]
+				}]
+			]
+		}),
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
 		!production && livereload('public'),
